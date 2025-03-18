@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>net8-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<UseWPF>true</UseWPF>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="Flurl.Http" Version="4.0.2" />
+		<PackageReference Include="NLog" Version="5.4.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.4.0" />
+		<PackageReference Include="System.Speech" Version="9.0.3" />
+		<PackageReference Include="System.Windows.Extensions" Version="9.0.3" />
+		<PackageReference Include="TikTokLiveDotNet" Version="0.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Settings.settings">
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	  </None>
+	</ItemGroup>
+</Project>

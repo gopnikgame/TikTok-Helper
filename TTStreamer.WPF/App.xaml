@@ -1,0 +1,24 @@
+﻿<Application
+    x:Class="TTStreamer.WPF.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:cnv="clr-namespace:TTStreamer.WPF.Converters"
+    DispatcherUnhandledException="OnDispatcherUnhandledException"
+    Exit="OnExit"
+    Startup="OnStartup">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--<ImageBrush x:Key="BackgroundBrush" Stretch="Fill" ImageSource="https://catherineasquithgallery.com/uploads/posts/2023-01/1674290492_catherineasquithgallery-com-p-serii-fon-dlya-stima-foto-95.png"></ImageBrush>-->
+            <cnv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <cnv:InvertBoolConverter x:Key="InvertBoolConverter"/>
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>

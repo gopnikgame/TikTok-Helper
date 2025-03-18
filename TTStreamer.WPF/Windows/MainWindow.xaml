@@ -1,0 +1,100 @@
+﻿<ui:FluentWindow
+    x:Class="TTStreamer.WPF.Windows.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:TTStreamer.WPF.Windows"
+    xmlns:pages="clr-namespace:TTStreamer.WPF.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="APP"
+    Width="1400"
+    Height="860"
+    d:DataContext="{d:DesignInstance local:MainWindow, IsDesignTimeCreatable=True}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ExtendsContentIntoTitleBar="True"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="DoNotRound"
+    WindowStartupLocation="CenterScreen"
+    FontFamily="{Binding SettingsView.FontFamily}"
+    mc:Ignorable="d">
+
+    <ui:FluentWindow.InputBindings>
+        <KeyBinding
+            Key="F"
+            Command="{Binding ElementName=AutoSuggestBox, Path=FocusCommand}"
+            Modifiers="Control" />
+    </ui:FluentWindow.InputBindings>
+
+    <Grid>
+        <Image Source="{Binding SettingsView.Background}" Stretch="UniformToFill" Opacity="0.1"/>
+
+        <ui:TitleBar CloseWindowByDoubleClickOnIcon="True" Title="test" x:Name="TileBar">
+            <!--<ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Assets/wpfui-icon-256.png" />
+            </ui:TitleBar.Icon>-->
+        </ui:TitleBar>
+
+        <ui:NavigationView 
+            ScrollViewer.CanContentScroll="False"
+            x:Name="NavigationView"
+            Padding="20"
+            BreadcrumbBar="{Binding ElementName=BreadcrumbBar}"
+            FrameMargin="10 40 0 0"
+            UseLayoutRounding="True"
+            IsBackButtonVisible="Visible"
+            IsPaneToggleVisible="True"
+            OpenPaneLength="310"
+            PaneTitle="Навигация"
+            PaneDisplayMode="LeftMinimal"
+            TitleBar="{Binding ElementName=TitleBar, Mode=OneWay}">
+            <ui:NavigationView.MenuItems>
+                <ui:NavigationViewItem Content="Мониторинг" TargetPageType="{x:Type pages:MonitoringPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="PageFit20" FontSize="20"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Донат эффекты" TargetPageType="{x:Type pages:SoundPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="PageFit20" FontSize="20"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.MenuItems>
+            <ui:NavigationView.FooterMenuItems>
+                <ui:NavigationViewItem Content="Настройки" TargetPageType="{x:Type pages:SettingsPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Settings20" FontSize="20"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+            </ui:NavigationView.FooterMenuItems>
+            <ui:NavigationView.Header>
+                <StackPanel Margin="10 10 10 0">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Grid28" FontSize="28"/>
+                        <ui:BreadcrumbBar x:Name="BreadcrumbBar" Margin="5 0 0 0"/>
+                    </StackPanel>
+                    <Separator Margin="0 5 0 0"/>
+                </StackPanel>
+            </ui:NavigationView.Header>
+            <!--<ui:NavigationView.AutoSuggestBox>
+                <ui:AutoSuggestBox x:Name="AutoSuggestBox" PlaceholderText="Search">
+                    <ui:AutoSuggestBox.Icon>
+                        <ui:IconSourceElement>
+                            <ui:SymbolIconSource Symbol="Search24" />
+                        </ui:IconSourceElement>
+                    </ui:AutoSuggestBox.Icon>
+                </ui:AutoSuggestBox>
+            </ui:NavigationView.AutoSuggestBox>-->
+            <ui:NavigationView.ContentOverlay>
+                <Grid>
+                    <ui:SnackbarPresenter x:Name="SnackbarPresenter" />
+                </Grid>
+            </ui:NavigationView.ContentOverlay>
+        </ui:NavigationView>
+        <ContentPresenter x:Name="RootContentDialog" />
+    </Grid>
+</ui:FluentWindow>
