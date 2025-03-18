@@ -1,17 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Threading;
-
+﻿// MonitoringViewModel.cs
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using MediatR;
-
 using Microsoft.Extensions.Logging;
-
-using TikTokLiveDotNet;
-using TikTokLiveDotNet.Protobuf;
-
-using TTStreamer.Services;
+using Newtonsoft.Json;
+using TTStreamer.Common.Services;
 using TTStreamer.WPF;
-using TTStreamer.WPF.Extensions;
-
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
@@ -22,7 +16,7 @@ namespace TTStreamer.Models
 
     public partial class MonitoringViewModel : ObservableObject
     {
-        private TikTokLiveClient tikTokLiveClient;
+        private NodeConnector _nodeConnector;
         private readonly IMediator mediator;
         private readonly ISnackbarService snackbarService;
         private readonly IContentDialogService dialogService;
@@ -53,7 +47,6 @@ namespace TTStreamer.Models
 
         public ObservableCollection<TableItemView> ItemList { get; set; } = new ObservableCollection<TableItemView>();
 
-
         public MonitoringViewModel(
             IMediator mediator,
             ISnackbarService snackbarService,
@@ -74,6 +67,8 @@ namespace TTStreamer.Models
             speechGift = Settings.Default.SpeechGift;
             speechLike = Settings.Default.SpeechLike;
             speechMember = Settings.Default.SpeechMember;
+
+            _nodeConnector = new NodeConnector();
         }
 
         partial void OnNotifyGiftChanged(bool value)
@@ -106,7 +101,6 @@ namespace TTStreamer.Models
             Settings.Default.Save();
         }
 
-
         [RelayCommand]
         private async Task Monitoring()
         {
@@ -114,75 +108,159 @@ namespace TTStreamer.Models
             {
                 if (!IsMonitoring)
                 {
-                    tikTokLiveClient.Disconnect();
-                    tikTokLiveClient.Dispose();
+                    await _nodeConnector.SendCommandAsync("disconnect", new Dictionary<string, object> { { "username", Stream } });
                     return;
                 }
 
                 ItemList.Clear();
 
-                tikTokLiveClient = new TikTokLiveClient(Stream);
-                tikTokLiveClient.GiftMessageReceived.Subscribe(GiftUpdate);
-                tikTokLiveClient.LikeMessageReceived.Subscribe(LikeUpdate);
-                tikTokLiveClient.MemberMessageReceived.Subscribe(MemberUpdate);
-                tikTokLiveClient.DisconnectionHappened.Subscribe(OnDisconnected);
-                await tikTokLiveClient.Connect();
+                var options = new Dictionary<string, object> { { "enableExtendedGiftInfo", true } };
+                string response = await _nodeConnector.SendCommandAsync("connect", new Dictionary<string, object> { { "username", Stream }, { "options", options } });
+                var jsonResponse = JsonConvert.DeserializeObject<dynamic>(response);
 
-                if (tikTokLiveClient.ClientState.IsConnecting)
+                if (jsonResponse.status != "success")
                 {
-                    tikTokLiveClient.Disconnect();
-                    throw new Exception("неудалсь подключиться");
+                    throw new Exception(jsonResponse.message);
                 }
 
-                if (!tikTokLiveClient.ClientState.IsConnected) throw new Exception("неудалсь подключиться");
+                IsMonitoring = true;
             }
             catch (Exception ex)
             {
-                tikTokLiveClient.Dispose();
                 IsMonitoring = false;
-                snackbarService.Show("ошибка", ex.InnerException?.Message ?? ex.Message, ControlAppearance.Danger);
+                snackbarService.Show("ошибка", ex.InnerException?.Message ?? ex.Message, ControlAppearance.Danger, null, snackbarService.DefaultTimeOut);
             }
         }
 
-        private void OnDisconnected(TikTokLiveDotNet.Notifications.DisconnectionInfo disconnectionInfo)
+        private async void OnDisconnected(dynamic disconnectionInfo)
         {
-            tikTokLiveClient.Dispose();
             IsMonitoring = false;
-            if (disconnectionInfo.IsFailure) Application.Current.Dispatcher.Invoke(() => snackbarService.Show("ошибка", disconnectionInfo.FailureCause, ControlAppearance.Danger));
+            if (disconnectionInfo.IsFailure)
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() => snackbarService.Show("ошибка", disconnectionInfo.FailureCause, ControlAppearance.Danger, null, snackbarService.DefaultTimeOut));
+            }
         }
 
-        private async void MemberUpdate(WebcastMemberMessage msg)
+        private async void MemberUpdate(dynamic msg)
         {
             if (msg.User == null) return;
-            if (SpeechMember) await speechService.Speech(Settings.Default.JoinText.Replace("@name", msg.User.Nickname), Settings.Default.SpeechVoice, Settings.Default.SpeechRate);
+            if (SpeechMember)
+            {
+                await speechService.Speech(Settings.Default.JoinText.Replace("@name", msg.User.Nickname), Settings.Default.SpeechVoice, Settings.Default.SpeechRate);
+            }
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                ItemList.Insert(0, new TableItemView(msg.Event.createTime.JavaTimeToDateTime(), msg.User.Nickname, "подключение"));
+                ItemList.Insert(0, new TableItemView(DateTime.Now, msg.User.Nickname, "подключение"));
                 if (ItemList.Count > 1000) ItemList.Remove(ItemList.Last());
             });
         }
 
-        private async void LikeUpdate(WebcastLikeMessage msg)
+        private async void LikeUpdate(dynamic msg)
         {
-            if (SpeechLike) await speechService.Speech(Settings.Default.LikeText.Replace("@name", msg.User.Nickname), Settings.Default.SpeechVoice, Settings.Default.SpeechRate);
+            if (SpeechLike)
+            {
+                await speechService.Speech(Settings.Default.LikeText.Replace("@name", msg.User.Nickname), Settings.Default.SpeechVoice, Settings.Default.SpeechRate);
+            }
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                ItemList.Insert(0, new TableItemView(msg.Event.createTime.JavaTimeToDateTime(), msg.User.Nickname, "лайк"));
+                ItemList.Insert(0, new TableItemView(DateTime.Now, msg.User.Nickname, "лайк"));
                 if (ItemList.Count > 1000) ItemList.Remove(ItemList.Last());
             });
         }
 
-
-        private async void GiftUpdate(WebcastGiftMessage msg)
+        private async void GiftUpdate(dynamic msg)
         {
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                ItemList.Insert(0, new TableItemView(msg.Event.createTime.JavaTimeToDateTime(), msg.User.Nickname, $"донат {msg.giftDetails.giftName}", 1));
+                ItemList.Insert(0, new TableItemView(DateTime.Now, msg.User.Nickname, $"донат {msg.giftDetails.giftName}", 1));
                 if (ItemList.Count > 1000) ItemList.Remove(ItemList.Last());
             });
 
-            if (SpeechGift) await speechService.Speech($"{msg.User.Nickname} прислал {msg.giftDetails.giftName}", Settings.Default.SpeechVoice, Settings.Default.SpeechRate);
-            if (NotifyGift) await soundService.Play(msg.giftId, Settings.Default.NotifyDelay);
+            if (SpeechGift)
+            {
+                await speechService.Speech($"{msg.User.Nickname} прислал {msg.giftDetails.giftName}", Settings.Default.SpeechVoice, Settings.Default.SpeechRate);
+            }
+            if (NotifyGift)
+            {
+                await soundService.Play(msg.giftId, Settings.Default.NotifyDelay);
+            }
+        }
+
+        private async Task HandleEvents()
+        {
+            while (IsMonitoring)
+            {
+                try
+                {
+                    string response = await _nodeConnector.SendCommandAsync("room-info", new Dictionary<string, object> { { "username", Stream } });
+                    var jsonResponse = JsonConvert.DeserializeObject<dynamic>(response);
+
+                    if (jsonResponse.status == "success")
+                    {
+                        dynamic roomInfo = jsonResponse.roomInfo;
+                        foreach (var eventInfo in roomInfo.events)
+                        {
+                            switch (eventInfo.type)
+                            {
+                                case "chat":
+                                    MemberUpdate(eventInfo.data);
+                                    break;
+                                case "like":
+                                    LikeUpdate(eventInfo.data);
+                                    break;
+                                case "gift":
+                                    GiftUpdate(eventInfo.data);
+                                    break;
+                                case "disconnection":
+                                    OnDisconnected(eventInfo.data);
+                                    break;
+                                default:
+                                    logger.LogWarning($"Unknown event type: {eventInfo.type}");
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        logger.LogError($"Error fetching room info: {jsonResponse.message}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await Application.Current.Dispatcher.InvokeAsync(() => snackbarService.Show("ошибка", ex.Message, ControlAppearance.Danger, null, snackbarService.DefaultTimeOut));
+                    IsMonitoring = false;
+                }
+                await Task.Delay(1000); // Ожидание перед следующим запросом
+            }
+        }
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+            if (e.PropertyName == nameof(IsMonitoring))
+            {
+                if (IsMonitoring)
+                {
+                    _ = HandleEvents();
+                }
+                else
+                {
+                    _nodeConnector.Dispose();
+                }
+            }
+        }
+
+        public void StartMonitoring()
+        {
+            if (IsMonitoring)
+            {
+                _ = HandleEvents();
+            }
+        }
+
+        public void StopMonitoring()
+        {
+            _nodeConnector.Dispose();
         }
     }
 }

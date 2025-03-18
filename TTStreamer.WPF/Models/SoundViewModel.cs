@@ -3,8 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-
-using TTStreamer.Services;
+using TTStreamer.Common.Services;
 using TTStreamer.WPF.Extensions;
 
 namespace TTStreamer.WPF.Models

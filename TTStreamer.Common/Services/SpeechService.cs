@@ -1,6 +1,6 @@
 using System.Speech.Synthesis;
 
-namespace TTStreamer.Services
+namespace TTStreamer.Common.Services
 {
     public class SpeechService
     {

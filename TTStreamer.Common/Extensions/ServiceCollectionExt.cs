@@ -2,8 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using NLog.Extensions.Logging;
-
-using TTStreamer.Services;
+using TTStreamer.Common.Services;
 
 namespace TTStreamer.Common.Extensions
 {

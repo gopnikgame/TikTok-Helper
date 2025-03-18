@@ -1,11 +1,5 @@
 ﻿using MediatR;
-
-using Microsoft.Extensions.Logging;
-
 using NLog;
-
-using TTStreamer.WPF.CommandQueries;
-using TTStreamer.WPF.Models;
 
 namespace TTStreamer.WPF.Notify
 {

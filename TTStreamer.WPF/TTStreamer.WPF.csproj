@@ -21,12 +21,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="MediatR" Version="12.4.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="NLog" Version="5.4.0" />
 		<PackageReference Include="NLog.Extensions.Logging" Version="5.4.0" />
 		<PackageReference Include="System.Drawing.Common" Version="9.0.3" />
 		<PackageReference Include="WPF-UI" Version="4.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="WPF-UI.Abstractions" Version="4.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,6 +63,9 @@
 		<None Update="Settings.settings">
 			<Generator>SettingsSingleFileGenerator</Generator>
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<None Update="tiktok-connector.js">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 

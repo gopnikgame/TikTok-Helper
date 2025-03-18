@@ -1,6 +1,6 @@
-using TTStreamer.Services;
+using TTStreamer.Common.Services;
 
-namespace TikTokStream.Tests
+namespace TTStreamer.Tests
 {
     [TestClass]
     public class SpeechServiceTest

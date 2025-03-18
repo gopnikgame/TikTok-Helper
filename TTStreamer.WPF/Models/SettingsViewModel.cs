@@ -5,8 +5,7 @@
 
 using System.Collections.ObjectModel;
 using System.Windows.Media;
-
-using TTStreamer.Services;
+using TTStreamer.Common.Services;
 
 using Wpf.Ui.Appearance;
 
@@ -105,7 +104,7 @@ namespace TTStreamer.WPF.Models
 
         partial void OnThemeChanged(ApplicationTheme value)
         {
-            ApplicationThemeManager.Apply(value, Wpf.Ui.Controls.WindowBackdropType.Auto, true, true);
+            ApplicationThemeManager.Apply(value, Wpf.Ui.Controls.WindowBackdropType.Auto, true);
             Settings.Default.Theme = (int)value;
             Settings.Default.Save();
         }

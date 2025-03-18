@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows.Media;
 
-namespace TTStreamer.Services
+namespace TTStreamer.Common.Services
 {
     public class SoundService
     {

@@ -13,7 +13,6 @@
 		<PackageReference Include="NLog.Extensions.Logging" Version="5.4.0" />
 		<PackageReference Include="System.Speech" Version="9.0.3" />
 		<PackageReference Include="System.Windows.Extensions" Version="9.0.3" />
-		<PackageReference Include="TikTokLiveDotNet" Version="0.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="Settings.settings">

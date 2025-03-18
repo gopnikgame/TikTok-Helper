@@ -6,6 +6,7 @@
 using TTStreamer.WPF.Models;
 
 using Wpf.Ui.Controls;
+using Wpf.Ui.Abstractions.Controls;
 
 namespace TTStreamer.WPF.Pages
 {

@@ -3,10 +3,9 @@ using System.IO;
 using System.Text.Json;
 
 using Flurl.Http;
+using TTStreamer.Common.Data;
 
-using TTStreamer.Data;
-
-namespace TTStreamer.Services
+namespace TTStreamer.Common.Services
 {
     public class GiftService
     {
